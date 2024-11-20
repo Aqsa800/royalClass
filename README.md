@@ -22,165 +22,158 @@ The system is modular, allowing different categories of documents (General, Moto
 
 ## Table of Contents
 
-1. [Setup and Installation](#setup-and-installation)
-2. [Running Migrations for Specific Modules](#running-migrations-for-specific-modules)
-3. [Uploading and Viewing Documents](#uploading-and-viewing-documents)
-4. [Modular Architecture](#modular-architecture)
-5. [Database Seeders](#database-seeders)
-6. [Encryption and Security](#encryption-and-security)
-7. [API Endpoints](#api-endpoints)
+1. Setup and Installation
+2. Running Migrations for Specific Modules
+3. Uploading and Viewing Documents
+4. Modular Architecture
+5. Database Seeders
+6. Encryption and Security
+7. API Endpoints
 
 ---
 
 ## Setup and Installation
 
-1. **Clone the repository**:
+1. **Clone the repository and setup the project**:
    ```bash
-   git clone https://github.com/yourusername/laravel-secure-doc-system.git
-   cd laravel-secure-doc-system
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/yourusername/laravel-secure-doc-system.git
-   cd laravel-secure-doc-system
-2. Install dependencies:
+   git clone https://github.com/Aqsa800/royalClass.git
+   cd royalClass
+   composer install
+   cp .env.example .env
+   php artisan key: generate (Update the .env file)
+   php artisan migrate
+   php artisan db:seed
+
+2. **Running Migrations for Specific Modules**:
+    The project is built with a modular architecture. To run migrations for a specific module, use the php artisan migrate:module command. Here's how to run migrations for a specific module:
+    ```bash
+    php artisan migrate:module General
+    php artisan migrate:module Motors
+    php artisan migrate:module Jobs
+
+3. **Uploading and Viewing Documents**:
+    For Uploading and Viewing Documents, the user has to login and admin right user can upload and view the document.
+
+    To upload a document (header + body):
+
+        API Endpoint(HTTP):
+           POST /api/general/documents HTTP/1.1
+           Accept: application/json
+           Content-Type: application/x-www-form-urlencoded
+           Authorization: Bearer TOken
+           Content-Length: 56
+           title=Test%20Title&header=Test%20Header&body=Test%20Body
 
 
-    composer install
-3. Set up the .env file:
-cp .env.example .env
-php artisan key:generate
-4. 
-Create and set up the database:
-
-Update the .env file with your database credentials.
-5. Run migrations for the default database structure:
-
-php artisan migrate
-php artisan db:seed
-
-
-2.Running Migrations for Specific Modules
-The project is built with a modular architecture. To run migrations for a specific module, use the php artisan migrate:module command. Here's how to run migrations for a specific module:
-
-bash
-Copy code
-php artisan migrate:module General
-php artisan migrate:module Motors
-php artisan migrate:module Jobs
-
-
-Uploading and Viewing Documents
-Upload Document
-To upload a document (header + body), use the POST endpoint /api/documents:
-
-API Endpoint:
-
-http
-Copy code
-POST /api/documents
-Request Body:
-
-json
-Copy code
-{
-  "header": "encrypted_header_content",
-  "body": "encrypted_body_content"
-}
+   
 View Document
-To view a document, use the GET endpoint /api/documents/{id}:
+To view a document, use the GET endpoint /api/documents/{document_id}:
 
-API Endpoint:
 
-http
-Copy code
-GET /api/documents/{id}
+     API Endpoint(HTTP):
+     POST /api/general/documents/{document_id} HTTP/1.1
+            Accept: application/json
+            Content-Type: application/x-www-form-urlencoded
+            Authorization: Bearer TOken
+            Content-Length: 56
+
+
+
 This endpoint combines the encrypted header and body, decrypts them, and returns the combined content.
 
+4. **Modular Architecture**:
 
-
-Modular Architecture
 This project is structured using the Laravel Modules package, which helps keep the project modular and organized. Each module (General, Motors, Jobs) has:
+        Controllers: Handles business logic for documents within the module.
+        Models: Eloquent models for the tables related to the module.
+        Migrations: Module-specific migrations for database tables.
+        Routes: Routes for the module’s API endpoints.
+        Services: Utility classes that may be used by the controllers.
 
-Controllers: Handles business logic for documents within the module.
-Models: Eloquent models for the tables related to the module.
-Migrations: Module-specific migrations for database tables.
-Routes: Routes for the module’s API endpoints.
-Services: Utility classes that may be used by the controllers.
-Example: General Module Structure
-plaintext
-Copy code
-modules/
-├── General/
-│   ├── Controllers/
-│   │   └── DocumentController.php
-│   ├── Models/
-│   │   └── Document.php
-│   ├── Database/migrations/
-│   │   └── create_documents_table.php
-│   ├── Routes/
-│   │   └── api.php
-│   └── Services/
-│       └── DocumentService.php
+    
+        Modules/
+        ├── General/
+        │   ├── Controllers/
+        │   │   └── DocumentController.php       
+        │   ├── Models/
+        │   │   └── Document.php                 
+        │   ├── Database/migrations/
+        │   │   └── create_document_headers_table.php   
+                └── create_document_bodies_table.php   
+        │   ├── Routes/
+        │   │   └── api.php                      
+        │   └── Services/
+        │       └── DocumentService.php         
+        ├── Jobs/
+        │   ├── Controllers/
+        │   │   └── DocumentController.php      
+        │   ├── Models/
+        │   │   └── Document.php                
+        │   ├── Database/migrations/
+        │   │   └── create_document_headers_table.php   
+                └── create_document_bodies_table.php   
+        │   ├── Routes/
+        │   │   └── api.php                      
+        │   └── Services/
+        │       └── DocumentService.php          
+        ├── Motors/
+        │   ├── Controllers/
+        │   │   └── DocumentController.php       
+        │   ├── Models/
+        │   │   └── Document.php                 
+        │   ├── Database/migrations/
+        │   │   └── create_document_headers_table.php   
+                └── create_document_bodies_table.php   
+        │   ├── Routes/
+        │   │   └── api.php                     
+        │   └── Services/
+        │       └── DocumentService.php         
+
+
+
+
 This modular approach allows for easy scalability and management of different types of documents, such as General, Motors, and Jobs.
 
+4. **Database Seeders**:
+
+To test with dummy data, run php artisan db:seed. it will create the two users
+    1- Admin User,(Email=>admin@example.com, Password:password) with admin role (can upload and view documents)
+    2- Regular User,(Email=>user@example.com, Password:password) with user role
 
 
-Database Seeders
-To test with dummy data, use the following seeder classes. The example below demonstrates how to seed dummy users and documents.
 
-UserSeeder
-php
-Copy code
-use App\Models\User;
-use App\Models\Role;
-use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
+4. **Endpoint API**:
+   
+   
+   ```bash
+    Login:
+       POST /api/login HTTP/1.1
+       Host:
+       Accept: application/json
+       Content-Type: application/x-www-form-urlencoded
+       Content-Length: 43
+       password=password&email=admin%40example.com
 
-class UserSeeder extends Seeder
-{
-    public function run()
-    {
-        // Create roles
-        $adminRole = Role::firstOrCreate(['name' => 'admin']);
-        $userRole = Role::firstOrCreate(['name' => 'user']);
+    Logout:
+       POST /api/logout HTTP/1.1
+       Host: royalclass4.test
+       Accept: application/json
+       Authorization: Bearer Token
+   
+    To upload a document (header + body):
+            POST /api/general/documents HTTP/1.1
+            Accept: application/json
+            Content-Type: application/x-www-form-urlencoded
+            Authorization: Bearer Token
+            Content-Length: 56
+            title=Test%20Title&header=Test%20Header&body=Test%20Body
 
-        // Create users
-        $adminUser = User::firstOrCreate(['email' => 'admin@example.com'], [
-            'name' => 'Admin User',
-            'password' => Hash::make('password')
-        ]);
-        $regularUser = User::firstOrCreate(['email' => 'user@example.com'], [
-            'name' => 'Regular User',
-            'password' => Hash::make('password')
-        ]);
+    To view a document:
+            GET /api/general/documents/{document_id} HTTP/1.1
+            Accept: application/json
+            Authorization: Bearer Token
 
-        // Attach roles
-        $adminUser->roles()->attach($adminRole->id);
-        $regularUser->roles()->attach($userRole->id);
-    }
-}
-DocumentSeeder
-php
-Copy code
-use Illuminate\Database\Seeder;
-use Modules\General\Models\Document;
-
-class DocumentSeeder extends Seeder
-{
-    public function run()
-    {
-        // Creating dummy document data
-        Document::create([
-            'title' => 'Sample Document',
-            'encrypted_header' => encrypt('Sample header content'),
-            'encrypted_body' => encrypt('Sample body content')
-        ]);
-    }
-}
-Run the seeders with:
-
-bash
-Copy code
-php artisan db:seed
-
-
+    To get the document list:
+            GET /api/general/documents HTTP/1.1
+            Accept: application/json
+            Authorization: Bearer Token
